@@ -38,5 +38,4 @@ process.on('SIGTERM', () => {
   }
 });
 
-
 // check commit test
