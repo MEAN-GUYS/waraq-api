@@ -20,8 +20,18 @@ router
     validate(userValidation.getUser),
     userController.getUser
   )
-  .patch(auth, authorizeRoles([roles.admin], { allowOwner: true }), userController.updateUser)
-  .delete(auth, authorizeRoles([roles.admin], { allowOwner: true }), userController.deleteUser);
+  .patch(
+    auth,
+    authorizeRoles([roles.admin], { allowOwner: true }),
+    validate(userValidation.updateUser),
+    userController.updateUser
+  )
+  .delete(
+    auth,
+    authorizeRoles([roles.admin], { allowOwner: true }),
+    validate(userValidation.deleteUser),
+    userController.deleteUser
+  );
 
 module.exports = router;
 
