@@ -4,9 +4,12 @@ const config = require('../config/config');
 const { Token } = require('../models');
 const { tokenTypes } = require('../config/tokens');
 
-const generateToken = (userId, expires, type, secret = config.jwt.secret) => {
+const generateToken = (user, expires, type, secret = config.jwt.secret) => {
   const payload = {
-    sub: userId,
+    sub: {
+      id: user.id,
+      role: user.role,
+    },
     iat: dayjs().unix(),
     exp: expires.unix(),
     type,
@@ -36,9 +39,9 @@ const verifyToken = async (token, type) => {
 
 const generateAuthTokens = async (user) => {
   const accessTokenExpires = dayjs().add(config.jwt.accessExpirationMinutes, 'minute');
-  const accessToken = generateToken(user.id, accessTokenExpires, tokenTypes.ACCESS);
+  const accessToken = generateToken(user, accessTokenExpires, tokenTypes.ACCESS);
   const refreshTokenExpires = dayjs().add(config.jwt.refreshExpirationDays, 'day');
-  const refreshToken = generateToken(user.id, refreshTokenExpires, tokenTypes.REFRESH);
+  const refreshToken = generateToken(user, refreshTokenExpires, tokenTypes.REFRESH);
   await saveToken(refreshToken, user.id, refreshTokenExpires, tokenTypes.REFRESH);
   return {
     access: {
