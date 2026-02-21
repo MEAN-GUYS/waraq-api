@@ -369,11 +369,6 @@ const resetPasswordEmail = (reset_url) => `<!DOCTYPE html>
 
             <div class="divider-ornament">· · ·</div>
 
-            <!-- Security Note -->
-            <p class="security-note">
-              If you did not request a password reset, you can safely ignore this email — your password will not change. If you have concerns, please contact us at <a href="mailto:support@waraq.com" style="color:#2D5FA8;">support@waraq.com</a>.
-            </p>
-
           </div>
           <!-- /BODY -->
 
@@ -383,19 +378,6 @@ const resetPasswordEmail = (reset_url) => `<!DOCTYPE html>
             <div class="footer-brand">
               <span class="footer-logo-ar">ورق</span>
               <span class="footer-logo-en">Waraq · Your Literary Companion</span>
-            </div>
-            <div class="footer-links">
-              <a href="#" class="footer-link">Help</a>
-              <a href="#" class="footer-link">Privacy</a>
-              <a href="#" class="footer-link">Terms</a>
-              <a href="#" class="footer-link">Contact</a>
-            </div>
-            <div class="footer-address">
-              Waraq ورق · support@waraq.com
-            </div>
-            <div class="footer-unsubscribe">
-              This email was sent because a password reset was requested for your account.<br/>
-              <a href="${reset_url}">Unsubscribe from security emails</a>
             </div>
           </div>
 
