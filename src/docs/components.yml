@@ -18,6 +18,29 @@ components:
         email: fake@example.com
         name: fake name
         role: user
+    Book:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        cover:
+          type: string
+          format: uri
+        price:
+          type: number
+        stock:
+          type: number
+      example:
+        id: 60a5b28a7e4b9c1d8c4e5f6a
+        name: The Great Gatsby
+        description: A classic novel by F. Scott Fitzgerald.
+        cover: https://example.com/gatsby-cover.jpg
+        price: 15.99
+        stock: 50
     Token:
       type: object
       properties:
