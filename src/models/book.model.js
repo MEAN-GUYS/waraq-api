@@ -23,7 +23,6 @@ const bookSchema = mongoose.Schema(
         message: 'Invalid URL for cover image',
       },
     },
-
     price: {
       type: Number,
       required: true,
@@ -48,7 +47,7 @@ const bookSchema = mongoose.Schema(
 bookSchema.plugin(toJSON);
 bookSchema.plugin(paginate);
 
-bookSchema.index({ name: 'text' });
+bookSchema.index({ name: 1 });
 bookSchema.index({ price: 1 });
 
 const Book = mongoose.model('Book', bookSchema);
