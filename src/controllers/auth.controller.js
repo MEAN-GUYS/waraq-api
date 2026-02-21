@@ -1,5 +1,6 @@
 const { status: httpStatus } = require('http-status');
 const { authService, userService, tokenService } = require('../services');
+const { forgetPassword } = require('../validations/auth.validation');
 
 const register = async (req, res) => {
   const user = await userService.createUser(req.body);
@@ -23,10 +24,16 @@ const refreshTokens = async (req, res) => {
   const tokens = await authService.refreshAuth(req.body.refreshToken);
   res.send({ ...tokens });
 };
+const forgetPassword=async(req,res)=>{
+  await authService.forgetPassword(req.body.email);
+  res.send({message:'If this email exists, you will receive a reset link shortly.'});
+
+}
 
 module.exports = {
   register,
   login,
   logout,
   refreshTokens,
+  forgetPassword
 };
