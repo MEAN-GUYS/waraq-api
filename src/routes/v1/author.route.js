@@ -9,7 +9,11 @@ const { authorController } = require('../../controllers');
 router
   .route('/')
   .post(auth, authorizeRoles([roles.admin]), validate(authorValidation.createAuthor), authorController.createAuthor)
-  .get();
+  .get(validate(authorValidation.getAuthors), authorController.getAllAuthors);
 
-router.route('/:authorId').get().patch().delete();
+router
+  .route('/:authorId')
+  .get(validate(authorValidation.getAuthor), authorController.getAuthor)
+  .patch(auth, authorizeRoles([roles.admin]), validate(authorValidation.updateAuthor), authorController.updateAuthor)
+  .delete(auth, authorizeRoles([roles.admin]), validate(authorValidation.deleteAuthor), authorController.deleteAuthor);
 module.exports = router;
