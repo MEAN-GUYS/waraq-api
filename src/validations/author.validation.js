@@ -19,13 +19,13 @@ const getAuthors = {
 
 const getAuthor = {
   params: Joi.object().keys({
-    authorId: Joi.string().custom(objectId),
+    authorId: Joi.string().custom(objectId).required(),
   }),
 };
 
 const updateAuthor = {
   params: Joi.object().keys({
-    authorId: Joi.string().custom(objectId),
+    authorId: Joi.string().custom(objectId).required(),
   }),
   body: Joi.object()
     .keys({
@@ -37,7 +37,7 @@ const updateAuthor = {
 
 const deleteAuthor = {
   params: Joi.object().keys({
-    authorId: Joi.string().custom(objectId),
+    authorId: Joi.string().custom(objectId).required(),
   }),
 };
 
