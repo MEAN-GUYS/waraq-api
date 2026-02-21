@@ -8,7 +8,7 @@ const createAuthor = async (req, res) => {
 
 const getAllAuthors = async (req, res) => {
   const authors = await authorService.getAllAuthors();
-  res.status(httpStatus[200]).send(authors);
+  res.status(httpStatus.OK).send(authors);
 };
 
 const getAuthor = async (req, res) => {

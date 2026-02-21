@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { toJSON } = require('./plugins');
 
 const authorSchema = new mongoose.Schema(
   {
@@ -8,7 +9,6 @@ const authorSchema = new mongoose.Schema(
     },
     bio: {
       type: String,
-      required: false,
     },
   },
   {
@@ -16,6 +16,7 @@ const authorSchema = new mongoose.Schema(
   }
 );
 
+authorSchema.plugin(toJSON);
 authorSchema.index({ name: 1 });
 
 const Author = mongoose.model('Author', authorSchema);

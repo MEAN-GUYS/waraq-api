@@ -3,7 +3,7 @@ const roles = require('../../config/roles');
 const validate = require('../../middlewares/validate');
 const auth = require('../../middlewares/auth');
 const authorizeRoles = require('../../middlewares/authorizeRoles');
-const { authorValidation } = require('../../validations');
+const authorValidation = require('../../validations/author.validation');
 const { authorController } = require('../../controllers');
 
 router

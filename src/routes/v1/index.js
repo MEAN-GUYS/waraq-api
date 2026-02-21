@@ -22,7 +22,7 @@ const defaultRoutes = [
     route: bookRoute,
   },
   {
-    path: '/author',
+    path: '/authors',
     route: authorRoute,
   },
 ];
