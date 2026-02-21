@@ -6,7 +6,7 @@ const createAuthor = async (AuthorBody) => Author.create(AuthorBody);
 
 const getAllAuthors = async () => Author.find();
 
-const getAuthorById = (id) => Author.findById(id);
+const getAuthorById = async (id) => Author.findById(id);
 
 const updateAuthorById = async (id, body) => {
   const author = await getAuthorById(id);
