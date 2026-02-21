@@ -12,16 +12,16 @@ const getAllAuthors = async (req, res) => {
 };
 
 const getAuthor = async (req, res) => {
-  const book = await authorService.getAuthorById(req.params.authorId);
-  if (!book) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Book not found');
+  const author = await authorService.getAuthorById(req.params.authorId);
+  if (author) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'author not found');
   }
-  res.send(book);
+  res.send(author);
 };
 
 const updateAuthor = async (req, res) => {
-  const Author = await authorService.updateAuthorById(req.params.authorId, req.body);
-  res.send(Author);
+  const author = await authorService.updateAuthorById(req.params.authorId, req.body);
+  res.send(author);
 };
 
 const deleteAuthor = async (req, res) => {
