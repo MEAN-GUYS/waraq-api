@@ -1,5 +1,6 @@
 const { status: httpStatus } = require('http-status');
 const ApiError = require('../utils/ApiError');
+const escapeRegex = require('../utils/escapeRegex');
 const { Book } = require('../models');
 
 const createBook = async (bookBody) => {
@@ -10,7 +11,7 @@ const queryBooks = async (filter, options) => {
   const mongooseFilter = {};
 
   if (filter.name) {
-    mongooseFilter.name = { $regex: filter.name, $options: 'i' };
+    mongooseFilter.name = { $regex: escapeRegex(filter.name), $options: 'i' };
   }
 
   if (filter.minPrice !== undefined) {
