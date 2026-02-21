@@ -4,11 +4,11 @@ const validate = require('../../middlewares/validate');
 const auth = require('../../middlewares/auth');
 const authorizeRoles = require('../../middlewares/authorizeRoles');
 const { authorValidation } = require('../../validations');
-const { authController } = require('../../controllers');
+const { authorController } = require('../../controllers');
 
 router
   .route('/')
-  .post(auth, authorizeRoles([roles.admin]), validate(authorValidation.createAuthor), authController.createAuthor)
+  .post(auth, authorizeRoles([roles.admin]), validate(authorValidation.createAuthor), authorController.createAuthor)
   .get();
 
 router.route('/:authorId').get().patch().delete();
