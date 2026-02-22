@@ -4,6 +4,7 @@ const userRoute = require('./user.route');
 const bookRoute = require('./book.route');
 const docsRoute = require('./docs.route');
 const config = require('../../config/config');
+const cartRoute = require('./cart.route');
 
 const router = express.Router();
 
@@ -20,10 +21,13 @@ const defaultRoutes = [
     path: '/books',
     route: bookRoute,
   },
+  {
+    path: '/cart',
+    route: cartRoute,
+  },
 ];
 
 const devRoutes = [
-  // routes available only in development mode
   {
     path: '/docs',
     route: docsRoute,
