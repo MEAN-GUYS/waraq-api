@@ -13,7 +13,7 @@ const getAllAuthors = async (req, res) => {
 
 const getAuthor = async (req, res) => {
   const author = await authorService.getAuthorById(req.params.authorId);
-  if (author) {
+  if (!author) {
     throw new ApiError(httpStatus.NOT_FOUND, 'author not found');
   }
   res.send(author);
