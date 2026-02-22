@@ -21,6 +21,9 @@ const getAuthor = async (req, res) => {
 
 const updateAuthor = async (req, res) => {
   const author = await authorService.updateAuthorById(req.params.authorId, req.body);
+  if (author) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'author not found');
+  }
   res.send(author);
 };
 
