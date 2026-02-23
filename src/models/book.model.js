@@ -23,6 +23,11 @@ const bookSchema = mongoose.Schema(
         message: 'Invalid URL for cover image',
       },
     },
+    coverId: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     price: {
       type: Number,
       required: true,

@@ -4,7 +4,7 @@ const ApiError = require('../utils/ApiError');
 const { bookService } = require('../services');
 
 const createBook = async (req, res) => {
-  const book = await bookService.createBook(req.body);
+  const book = await bookService.createBook(req.body, req.file?.buffer);
   res.status(httpStatus.CREATED).send(book);
 };
 
@@ -25,7 +25,7 @@ const getBook = async (req, res) => {
 };
 
 const updateBook = async (req, res) => {
-  const book = await bookService.updateBookById(req.params.bookId, req.body);
+  const book = await bookService.updateBookById(req.params.bookId, req.body, req.file?.buffer);
   res.send(book);
 };
 
