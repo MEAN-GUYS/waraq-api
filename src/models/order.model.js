@@ -74,8 +74,9 @@ const orderSchema = new mongoose.Schema(
     },
     items: {
       type: [orderItemSchema],
+      required: true,
       validate: {
-        validator: (items) => items.length > 0,
+        validator: (items) => Array.isArray(items) && items.length > 0,
         message: 'Order must contain at least one item',
       },
     },
