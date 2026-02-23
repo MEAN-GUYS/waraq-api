@@ -1,19 +1,18 @@
 const nodemailer = require('nodemailer');
 const ApiError = require('./ApiError');
 const { status: httpStatus } = require('http-status');
-const config = require('../config/config');
 
 let transporter;
 const getTransporter = () => {
-  if (!config.email.user || !config.email.pass) {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Email service is not configured properly');
   }
   if (!transporter) {
     transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: config.email.user,
-        pass: config.email.pass,
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     });
   }
@@ -22,7 +21,7 @@ const getTransporter = () => {
 
 const sendEmail = async (email, subject, html) => {
   await getTransporter().sendMail({
-    from: config.email.user,
+    from: process.env.EMAIL_USER,
     to: email,
     subject,
     html,

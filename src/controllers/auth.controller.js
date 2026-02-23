@@ -23,10 +23,15 @@ const refreshTokens = async (req, res) => {
   const tokens = await authService.refreshAuth(req.body.refreshToken);
   res.send({ ...tokens });
 };
+const forgetPassword = async (req, res) => {
+  await authService.forgetPassword(req.body.email);
+  res.send({ message: 'If this email exists, you will receive a reset link shortly.' });
+};
 
 module.exports = {
   register,
   login,
   logout,
   refreshTokens,
+  forgetPassword,
 };
