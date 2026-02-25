@@ -27,10 +27,17 @@ const refreshTokens = {
     refreshToken: Joi.string().required(),
   }),
 };
+const forgetPassword={
+   body: Joi.object().keys({
+    email: Joi.string().required(),
+  })
+}
 
 module.exports = {
   register,
   login,
   logout,
   refreshTokens,
+  forgetPassword
+  
 };

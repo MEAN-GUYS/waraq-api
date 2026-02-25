@@ -5,11 +5,16 @@ const userValidation = require('../../validations/user.validation');
 const userController = require('../../controllers/user.controller');
 const authorizeRoles = require('../../middlewares/authorizeRoles');
 const roles = require('../../config/roles');
+const uploadMiddleware = require('../../middlewares/multer');
+const allowedExtensions = require('../../config/allowedExtensions');
+
+const upload = uploadMiddleware({ extensions: allowedExtensions.image });
+
 const router = express.Router();
 
 router
   .route('/')
-  .post(validate(userValidation.createUser), userController.createUser)
+  .post(upload.single('coverImage'), validate(userValidation.createUser), userController.createUser)
   .get(auth, authorizeRoles([roles.admin]), validate(userValidation.getUsers), userController.getUsers);
 
 router
@@ -23,6 +28,7 @@ router
   .patch(
     auth,
     authorizeRoles([roles.admin], { allowOwner: true }),
+    upload.single('coverImage'),
     validate(userValidation.updateUser),
     userController.updateUser
   )

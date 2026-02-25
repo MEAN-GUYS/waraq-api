@@ -3,7 +3,12 @@ const tokenService = require('./token.service');
 const userService = require('./user.service');
 const Token = require('../models/token.model');
 const ApiError = require('../utils/ApiError');
+const dayjs = require('dayjs');
 const { tokenTypes } = require('../config/tokens');
+const User = require('../models/user.model');
+const config = require('../config/config');
+const { resetPasswordEmail } = require('../utils/templateEmail');
+const sendEmail = require('../utils/sendEmail');
 
 const loginUserWithEmailAndPassword = async (email, password) => {
   const user = await userService.getUserByEmail(email);
@@ -35,8 +40,26 @@ const refreshAuth = async (refreshToken) => {
   }
 };
 
+const forgetPassword = async (email) => {
+  const user = await User.findOne({ email });
+  if (!user) return;
+  const accessTokenExpires = dayjs().add(config.jwt.accessExpirationMinutes, 'minute');
+  const resetToken = await tokenService.generateToken(
+    user,
+    accessTokenExpires,
+    tokenTypes.FORGET_PASSWORD,
+    config.jwt.password
+  );
+  await user.save();
+  const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
+  await sendEmail(user.email, 'Reset Your Password', resetPasswordEmail(resetUrl));
+
+  return resetUrl;
+};
+
 module.exports = {
   loginUserWithEmailAndPassword,
   logout,
   refreshAuth,
+  forgetPassword,
 };
