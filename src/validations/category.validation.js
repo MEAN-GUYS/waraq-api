@@ -9,7 +9,7 @@ const createCategory = {
 
 const getCategories = {
   query: Joi.object().keys({
-    name: Joi.string(),
+    name: Joi.string().trim(),
     sortBy: Joi.string(),
     limit: Joi.number().integer().min(1),
     page: Joi.number().integer().min(1),

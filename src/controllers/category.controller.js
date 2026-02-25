@@ -18,12 +18,12 @@ const getCategories = async (req, res) => {
 
 const getCategory = async (req, res) => {
   const category = await categoryService.getCategoryById(req.params.categoryId);
-  res.send(category);
+  res.status(httpStatus.OK).send(category);
 };
 
 const updateCategory = async (req, res) => {
   const category = await categoryService.updateCategoryById(req.params.categoryId, req.body.name);
-  res.send(category);
+  res.status(httpStatus.OK).send(category);
 };
 
 const deleteCategory = async (req, res) => {
