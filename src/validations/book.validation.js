@@ -5,7 +5,6 @@ const createBook = {
   body: Joi.object().keys({
     name: Joi.string().required(),
     description: Joi.string().required(),
-    cover: Joi.string().required().uri(),
     price: Joi.number().required().min(0),
     stock: Joi.number().required().integer().min(0),
   }),

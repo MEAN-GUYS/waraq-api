@@ -6,16 +6,32 @@ const roles = require('../../config/roles');
 const bookValidation = require('../../validations/book.validation');
 const bookController = require('../../controllers/book.controller');
 const router = express.Router();
+const uploadMiddleware = require('../../middlewares/multer');
+const allowedExtensions = require('../../config/allowedExtensions');
+
+const upload = uploadMiddleware({ extensions: allowedExtensions.image });
 
 router
   .route('/')
-  .post(auth, authorizeRoles([roles.admin]), validate(bookValidation.createBook), bookController.createBook)
+  .post(
+    upload.single('cover'),
+    auth,
+    authorizeRoles([roles.admin]),
+    validate(bookValidation.createBook),
+    bookController.createBook
+  )
   .get(validate(bookValidation.getBooks), bookController.getBooks);
 
 router
   .route('/:bookId')
   .get(validate(bookValidation.getBook), bookController.getBook)
-  .patch(auth, authorizeRoles([roles.admin]), validate(bookValidation.updateBook), bookController.updateBook)
+  .patch(
+    upload.single('cover'),
+    auth,
+    authorizeRoles([roles.admin]),
+    validate(bookValidation.updateBook),
+    bookController.updateBook
+  )
   .delete(auth, authorizeRoles([roles.admin]), validate(bookValidation.deleteBook), bookController.deleteBook);
 
 module.exports = router;
