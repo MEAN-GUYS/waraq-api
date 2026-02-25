@@ -101,6 +101,16 @@ components:
         paymentMethod: COD
         paymentStatus: pending
         totalPrice: 31.98
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+      example:
+        id: 60c7b2f9e1d5a83f4c9b1234
+        name: Fiction
     Token:
       type: object
       properties:
@@ -163,6 +173,15 @@ components:
           example:
             code: 404
             message: Not found
+    Conflict:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 409
+            message: Category name already exists
   securitySchemes:
     bearerAuth:
       type: http
