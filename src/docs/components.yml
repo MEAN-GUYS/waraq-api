@@ -181,7 +181,7 @@ components:
             $ref: '#/components/schemas/Error'
           example:
             code: 409
-            message: Category name already exists
+            message: Resource name already exists
   securitySchemes:
     bearerAuth:
       type: http

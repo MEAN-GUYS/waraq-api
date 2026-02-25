@@ -3,11 +3,15 @@ const { Category } = require('../models');
 const ApiError = require('../utils/ApiError');
 
 const createCategory = async (name) => {
-  const existing = await Category.findOne({ name });
-  if (existing) {
-    throw new ApiError(httpStatus.CONFLICT, 'Category name already exists');
+  try {
+    return await Category.create({ name });
+  } catch (error) {
+    if (error.code === 11000) {
+      throw new ApiError(httpStatus.CONFLICT, 'Category name already exists');
+    } else {
+      throw error;
+    }
   }
-  return Category.create({ name });
 };
 
 const queryCategories = async (filter, options) => {
@@ -26,14 +30,17 @@ const getCategoryById = async (id) => {
 
 const updateCategoryById = async (id, name) => {
   const category = await getCategoryById(id);
+  Object.assign(category, { name });
 
-  const existing = await Category.findOne({ name, _id: { $ne: id } });
-  if (existing) {
-    throw new ApiError(httpStatus.CONFLICT, 'Category name already exists');
+  try {
+    await category.save();
+  } catch (error) {
+    if (error.code === 11000) {
+      throw new ApiError(httpStatus.CONFLICT, 'Category name already exists');
+    }
+    throw error;
   }
 
-  Object.assign(category, { name });
-  await category.save();
   return category;
 };
 
