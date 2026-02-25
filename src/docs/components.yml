@@ -41,6 +41,66 @@ components:
         cover: https://example.com/gatsby-cover.jpg
         price: 15.99
         stock: 50
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        user:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              book:
+                type: string
+              name:
+                type: string
+              cover:
+                type: string
+                format: uri
+              price:
+                type: number
+              quantity:
+                type: integer
+        address:
+          type: object
+          properties:
+            street:
+              type: string
+            city:
+              type: string
+            country:
+              type: string
+        shippingStatus:
+          type: string
+          enum: [processing, out for delivery, delivered]
+        paymentMethod:
+          type: string
+          enum: [COD]
+        paymentStatus:
+          type: string
+          enum: [pending, success]
+        totalPrice:
+          type: number
+      example:
+        id: 60b8d295f1d2c72d9c8b4567
+        user: 5ebac534954b54139806c112
+        items:
+          - book: 60a5b28a7e4b9c1d8c4e5f6a
+            name: The Great Gatsby
+            cover: https://example.com/gatsby-cover.jpg
+            price: 15.99
+            quantity: 2
+        address:
+          street: 123 Main St
+          city: Cairo
+          country: Egypt
+        shippingStatus: processing
+        paymentMethod: COD
+        paymentStatus: pending
+        totalPrice: 31.98
     Token:
       type: object
       properties:
