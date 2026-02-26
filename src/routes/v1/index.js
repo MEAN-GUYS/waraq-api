@@ -7,6 +7,7 @@ const docsRoute = require('./docs.route');
 const authorRoute = require('./author.route');
 const config = require('../../config/config');
 const cartRoute = require('./cart.route');
+const categoryRoute = require('./category.route');
 
 const router = express.Router();
 
@@ -26,12 +27,18 @@ const defaultRoutes = [
   {
     path: '/cart',
     route: cartRoute,
+  },
+  {
     path: '/authors',
     route: authorRoute,
   },
   {
     path: '/orders',
     route: orderRoute,
+  },
+  {
+    path: '/categories',
+    route: categoryRoute,
   },
 ];
 
