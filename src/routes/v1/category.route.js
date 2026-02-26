@@ -136,14 +136,14 @@ module.exports = router;
 
 /**
  * @swagger
- * /categories/{id}:
+ * /categories/{categoryId}:
  *   get:
  *     summary: Get a category
  *     description: Fetch a category by ID.
  *     tags: [Categories]
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: categoryId
  *         required: true
  *         schema:
  *           type: string
@@ -166,7 +166,7 @@ module.exports = router;
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: categoryId
  *         required: true
  *         schema:
  *           type: string
@@ -206,7 +206,7 @@ module.exports = router;
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: categoryId
  *         required: true
  *         schema:
  *           type: string
