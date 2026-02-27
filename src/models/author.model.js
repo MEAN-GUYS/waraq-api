@@ -1,14 +1,16 @@
 const mongoose = require('mongoose');
-const { toJSON } = require('./plugins');
+const { toJSON, paginate } = require('./plugins');
 
 const authorSchema = new mongoose.Schema(
   {
     name: {
       type: String,
+      trim: true,
       required: true,
     },
     bio: {
       type: String,
+      trim: true,
     },
   },
   {
@@ -17,6 +19,8 @@ const authorSchema = new mongoose.Schema(
 );
 
 authorSchema.plugin(toJSON);
+authorSchema.plugin(paginate);
+
 authorSchema.index({ name: 1 });
 
 const Author = mongoose.model('Author', authorSchema);

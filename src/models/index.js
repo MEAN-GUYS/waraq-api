@@ -5,3 +5,4 @@ module.exports.Review = require('./review.model');
 module.exports.Author = require('./author.model');
 module.exports.Order = require('./order.model');
 module.exports.Category = require('./category.model');
+module.exports.Cart = require('./cart.model');

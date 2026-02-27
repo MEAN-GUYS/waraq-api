@@ -1,12 +1,19 @@
 const Joi = require('joi');
 const { objectId } = require('./custom.validation');
 
+const objectIdOrArray = Joi.alternatives().try(
+  Joi.string().custom(objectId),
+  Joi.array().items(Joi.string().custom(objectId))
+);
+
 const createBook = {
   body: Joi.object().keys({
     name: Joi.string().required(),
     description: Joi.string().required(),
     price: Joi.number().required().min(0),
     stock: Joi.number().required().integer().min(0),
+    author: Joi.string().custom(objectId).required(),
+    category: Joi.string().custom(objectId).required(),
   }),
 };
 
@@ -19,6 +26,8 @@ const getBooks = {
       then: Joi.number().min(Joi.ref('minPrice')),
       otherwise: Joi.number().min(0),
     }),
+    author: objectIdOrArray,
+    category: objectIdOrArray,
     sortBy: Joi.string(),
     limit: Joi.number().integer().min(1),
     page: Joi.number().integer().min(1),
@@ -42,6 +51,8 @@ const updateBook = {
       cover: Joi.string().uri(),
       price: Joi.number().min(0),
       stock: Joi.number().integer().min(0),
+      author: Joi.string().custom(objectId),
+      category: Joi.string().custom(objectId),
     })
     .min(1),
 };

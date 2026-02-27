@@ -1,6 +1,6 @@
 const { status: httpStatus } = require('http-status');
 const ApiError = require('../utils/ApiError');
-const { Cart } = require('../models');
+const { Cart, Book } = require('../models');
 
 const getCartByUser = async (userId) => {
   let cart = await Cart.findOne({ user: userId }).populate('items.book');
@@ -11,6 +11,11 @@ const getCartByUser = async (userId) => {
 };
 
 const addItem = async (userId, bookId, quantity) => {
+  const bookExists = await Book.exists({ _id: bookId });
+  if (!bookExists) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Book not found');
+  }
+
   const cart = await getCartByUser(userId);
   const existingItem = cart.items.find((i) => i.book._id.toString() === bookId);
 
@@ -21,6 +26,7 @@ const addItem = async (userId, bookId, quantity) => {
   }
 
   await cart.save();
+
   return cart;
 };
 

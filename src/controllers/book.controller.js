@@ -9,7 +9,7 @@ const createBook = async (req, res) => {
 };
 
 const getBooks = async (req, res) => {
-  const filter = pick(req.query, ['name', 'minPrice', 'maxPrice']);
+  const filter = pick(req.query, ['name', 'minPrice', 'maxPrice', 'author', 'category']);
   const options = pick(req.query, ['sortBy', 'limit', 'page']);
 
   const result = await bookService.queryBooks(filter, options);
