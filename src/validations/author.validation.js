@@ -3,8 +3,8 @@ const { objectId } = require('./custom.validation');
 
 const createAuthor = {
   body: Joi.object().keys({
-    name: Joi.string().required(),
-    bio: Joi.string().allow('', null),
+    name: Joi.string().trim().required(),
+    bio: Joi.string().trim().allow('', null),
   }),
 };
 
@@ -29,8 +29,8 @@ const updateAuthor = {
   }),
   body: Joi.object()
     .keys({
-      name: Joi.string(),
-      bio: Joi.string().allow('', null),
+      name: Joi.string().trim(),
+      bio: Joi.string().trim().allow('', null),
     })
     .min(1),
 };
