@@ -1,5 +1,5 @@
 const { status: httpStatus } = require('http-status');
-const { Category } = require('../models');
+const { Category, Book } = require('../models');
 const ApiError = require('../utils/ApiError');
 
 const createCategory = async (name) => {
@@ -46,6 +46,12 @@ const updateCategoryById = async (id, name) => {
 
 const deleteCategoryById = async (id) => {
   const category = await getCategoryById(id);
+
+  const associatedBooks = await Book.exists({ category: id });
+  if (associatedBooks) {
+    throw new ApiError(httpStatus.CONFLICT, 'Cannot delete category with associated books');
+  }
+
   await category.deleteOne();
   return category;
 };
