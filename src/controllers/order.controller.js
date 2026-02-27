@@ -3,7 +3,7 @@ const pick = require('../utils/pick');
 const { orderService } = require('../services');
 
 const createOrder = async (req, res) => {
-  const order = await orderService.createOrder(req.user.id, req.body.items, req.body.address);
+  const order = await orderService.createOrder(req.user.id, req.body.address);
   res.status(httpStatus.CREATED).send(order);
 };
 

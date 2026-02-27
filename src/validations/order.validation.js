@@ -2,11 +2,6 @@ const Joi = require('joi');
 const { objectId } = require('./custom.validation');
 const { SHIPPING_STATUSES, PAYMENT_STATUSES } = require('../models/order.model');
 
-const cartItem = Joi.object().keys({
-  book: Joi.string().custom(objectId).required(),
-  quantity: Joi.number().integer().min(1).required(),
-});
-
 const addressSchema = Joi.object().keys({
   street: Joi.string().required().min(3).max(200),
   city: Joi.string().required().min(2).max(100),
@@ -16,7 +11,6 @@ const addressSchema = Joi.object().keys({
 const createOrder = {
   body: Joi.object().keys({
     address: addressSchema.required(),
-    items: Joi.array().items(cartItem).min(1).required(),
   }),
 };
 

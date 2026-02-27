@@ -1,19 +1,22 @@
 const mongoose = require('mongoose');
 const { toJSON, paginate } = require('./plugins');
 
-const cartItemSchema = new mongoose.Schema({
-  book: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Book',
-    required: true,
+const cartItemSchema = new mongoose.Schema(
+  {
+    book: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Book',
+      required: true,
+    },
+    quantity: {
+      type: Number,
+      required: true,
+      min: 1,
+      default: 1,
+    },
   },
-  quantity: {
-    type: Number,
-    required: true,
-    min: 1,
-    default: 1,
-  },
-});
+  { _id: false }
+);
 
 const cartSchema = new mongoose.Schema(
   {

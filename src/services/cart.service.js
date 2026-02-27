@@ -31,11 +31,6 @@ const addItem = async (userId, bookId, quantity) => {
 };
 
 const updateItem = async (userId, bookId, quantity) => {
-  const bookExists = await Book.exists({ _id: bookId });
-  if (!bookExists) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Book not found');
-  }
-
   const cart = await getCartByUser(userId);
   const item = cart.items.find((i) => i.book._id.toString() === bookId);
 
