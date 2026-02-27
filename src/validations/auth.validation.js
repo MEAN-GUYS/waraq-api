@@ -6,6 +6,7 @@ const register = {
     email: Joi.string().required().email(),
     password: Joi.string().required().custom(password),
     name: Joi.string().required(),
+    dob: Joi.date().required().max('now'),
   }),
 };
 
@@ -27,17 +28,16 @@ const refreshTokens = {
     refreshToken: Joi.string().required(),
   }),
 };
-const forgetPassword={
-   body: Joi.object().keys({
+const forgetPassword = {
+  body: Joi.object().keys({
     email: Joi.string().required(),
-  })
-}
+  }),
+};
 
 module.exports = {
   register,
   login,
   logout,
   refreshTokens,
-  forgetPassword
-  
+  forgetPassword,
 };

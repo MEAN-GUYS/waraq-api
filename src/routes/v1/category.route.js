@@ -1,55 +1,55 @@
 const express = require('express');
-const auth = require('../../middlewares/auth');
-const validate = require('../../middlewares/validate');
-const authorizeRoles = require('../../middlewares/authorizeRoles');
 const roles = require('../../config/roles');
-const bookValidation = require('../../validations/book.validation');
-const bookController = require('../../controllers/book.controller');
-const router = express.Router();
-const uploadMiddleware = require('../../middlewares/multer');
-const allowedExtensions = require('../../config/allowedExtensions');
+const validate = require('../../middlewares/validate');
+const auth = require('../../middlewares/auth');
+const authorizeRoles = require('../../middlewares/authorizeRoles');
+const categoryValidation = require('../../validations/category.validation');
+const { categoryController } = require('../../controllers');
 
-const upload = uploadMiddleware({ extensions: allowedExtensions.image });
+const router = express.Router();
 
 router
   .route('/')
   .post(
-    upload.single('cover'),
     auth,
     authorizeRoles([roles.admin]),
-    validate(bookValidation.createBook),
-    bookController.createBook
+    validate(categoryValidation.createCategory),
+    categoryController.createCategory
   )
-  .get(validate(bookValidation.getBooks), bookController.getBooks);
+  .get(validate(categoryValidation.getCategories), categoryController.getCategories);
 
 router
-  .route('/:bookId')
-  .get(validate(bookValidation.getBook), bookController.getBook)
+  .route('/:categoryId')
+  .get(validate(categoryValidation.getCategory), categoryController.getCategory)
   .patch(
-    upload.single('cover'),
     auth,
     authorizeRoles([roles.admin]),
-    validate(bookValidation.updateBook),
-    bookController.updateBook
+    validate(categoryValidation.updateCategory),
+    categoryController.updateCategory
   )
-  .delete(auth, authorizeRoles([roles.admin]), validate(bookValidation.deleteBook), bookController.deleteBook);
+  .delete(
+    auth,
+    authorizeRoles([roles.admin]),
+    validate(categoryValidation.deleteCategory),
+    categoryController.deleteCategory
+  );
 
 module.exports = router;
 
 /**
  * @swagger
  * tags:
- *   name: Books
- *   description: Book management and retrieval
+ *   name: Categories
+ *   description: Category management and retrieval
  */
 
 /**
  * @swagger
- * /books:
+ * /categories:
  *   post:
- *     summary: Create a book
- *     description: Only admins can create books.
- *     tags: [Books]
+ *     summary: Create a category
+ *     description: Only admins can create categories.
+ *     tags: [Categories]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -60,64 +60,35 @@ module.exports = router;
  *             type: object
  *             required:
  *               - name
- *               - description
- *               - cover
- *               - price
- *               - stock
  *             properties:
  *               name:
  *                 type: string
- *               description:
- *                 type: string
- *               cover:
- *                 type: string
- *                 format: uri
- *                 description: must be a valid URL
- *               price:
- *                 type: number
- *                 minimum: 0
- *               stock:
- *                 type: integer
- *                 minimum: 0
- *                 description: stock must be an integer
  *             example:
- *               name: The Great Gatsby
- *               description: A classic novel by F. Scott Fitzgerald.
- *               cover: https://example.com/gatsby-cover.jpg
- *               price: 15.99
- *               stock: 50
+ *               name: Fiction
  *     responses:
  *       "201":
  *         description: Created
  *         content:
  *           application/json:
  *             schema:
- *                $ref: '#/components/schemas/Book'
+ *                $ref: '#/components/schemas/Category'
  *       "401":
  *         $ref: '#/components/responses/Unauthorized'
  *       "403":
  *         $ref: '#/components/responses/Forbidden'
+ *       "409":
+ *         $ref: '#/components/responses/Conflict'
  *
  *   get:
- *     summary: Get all books
- *     description: Retrieve all books.
- *     tags: [Books]
+ *     summary: Get all categories
+ *     description: Retrieve all categories with optional pagination.
+ *     tags: [Categories]
  *     parameters:
  *       - in: query
  *         name: name
  *         schema:
  *           type: string
- *         description: Book name
- *       - in: query
- *         name: minPrice
- *         schema:
- *           type: number
- *         description: Minimum price
- *       - in: query
- *         name: maxPrice
- *         schema:
- *           type: number
- *         description: Maximum price
+ *         description: Category name
  *       - in: query
  *         name: sortBy
  *         schema:
@@ -129,7 +100,7 @@ module.exports = router;
  *           type: integer
  *           minimum: 1
  *         default: 10
- *         description: Maximum number of books
+ *         description: Maximum number of categories
  *       - in: query
  *         name: page
  *         schema:
@@ -148,7 +119,7 @@ module.exports = router;
  *                 results:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/Book'
+ *                     $ref: '#/components/schemas/Category'
  *                 page:
  *                   type: integer
  *                   example: 1
@@ -165,41 +136,41 @@ module.exports = router;
 
 /**
  * @swagger
- * /books/{id}:
+ * /categories/{categoryId}:
  *   get:
- *     summary: Get a book
- *     description: Fetch a book by ID.
- *     tags: [Books]
+ *     summary: Get a category
+ *     description: Fetch a category by ID.
+ *     tags: [Categories]
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: categoryId
  *         required: true
  *         schema:
  *           type: string
- *         description: Book ID
+ *         description: Category ID
  *     responses:
  *       "200":
  *         description: OK
  *         content:
  *           application/json:
  *             schema:
- *                $ref: '#/components/schemas/Book'
+ *                $ref: '#/components/schemas/Category'
  *       "404":
  *         $ref: '#/components/responses/NotFound'
  *
  *   patch:
- *     summary: Update a book
- *     description: Only admins can update books.
- *     tags: [Books]
+ *     summary: Update a category
+ *     description: Only admins can update categories.
+ *     tags: [Categories]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: categoryId
  *         required: true
  *         schema:
  *           type: string
- *         description: Book ID
+ *         description: Category ID
  *     requestBody:
  *       required: true
  *       content:
@@ -209,50 +180,39 @@ module.exports = router;
  *             properties:
  *               name:
  *                 type: string
- *               description:
- *                 type: string
- *               cover:
- *                 type: string
- *                 format: uri
- *               price:
- *                 type: number
- *                 minimum: 0
- *               stock:
- *                 type: integer
- *                 minimum: 0
  *             example:
- *               name: The Great Gatsby (Revised Edition)
- *               price: 19.99
- *               stock: 150
+ *               name: Non-Fiction
  *     responses:
  *       "200":
  *         description: OK
  *         content:
  *           application/json:
  *             schema:
- *                $ref: '#/components/schemas/Book'
+ *                $ref: '#/components/schemas/Category'
  *       "401":
  *         $ref: '#/components/responses/Unauthorized'
  *       "403":
  *         $ref: '#/components/responses/Forbidden'
  *       "404":
  *         $ref: '#/components/responses/NotFound'
+ *       "409":
+ *         $ref: '#/components/responses/Conflict'
  *
  *   delete:
- *     summary: Delete a book
- *     description: Only admins can delete books.
- *     tags: [Books]
+ *     summary: Delete a category
+ *     description: Only admins can delete categories. Cannot delete if books are linked.
+ *     tags: [Categories]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: categoryId
  *         required: true
  *         schema:
  *           type: string
- *         description: Book ID
+ *         description: Category ID
  *     responses:
- *       "200":
+ *       "204":
  *         description: No content
  *       "401":
  *         $ref: '#/components/responses/Unauthorized'
@@ -260,4 +220,6 @@ module.exports = router;
  *         $ref: '#/components/responses/Forbidden'
  *       "404":
  *         $ref: '#/components/responses/NotFound'
+ *       "409":
+ *         $ref: '#/components/responses/Conflict'
  */

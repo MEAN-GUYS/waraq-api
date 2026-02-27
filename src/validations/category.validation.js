@@ -1,50 +1,48 @@
 const Joi = require('joi');
 const { objectId } = require('./custom.validation');
 
-const createAuthor = {
+const createCategory = {
   body: Joi.object().keys({
     name: Joi.string().trim().required(),
-    bio: Joi.string().trim().allow('', null),
   }),
 };
 
-const getAuthors = {
+const getCategories = {
   query: Joi.object().keys({
-    name: Joi.string(),
+    name: Joi.string().trim(),
     sortBy: Joi.string(),
     limit: Joi.number().integer().min(1),
     page: Joi.number().integer().min(1),
   }),
 };
 
-const getAuthor = {
+const getCategory = {
   params: Joi.object().keys({
-    authorId: Joi.string().custom(objectId).required(),
+    categoryId: Joi.string().custom(objectId).required(),
   }),
 };
 
-const updateAuthor = {
+const updateCategory = {
   params: Joi.object().keys({
-    authorId: Joi.string().custom(objectId).required(),
+    categoryId: Joi.string().custom(objectId).required(),
   }),
   body: Joi.object()
     .keys({
       name: Joi.string().trim(),
-      bio: Joi.string().trim().allow('', null),
     })
     .min(1),
 };
 
-const deleteAuthor = {
+const deleteCategory = {
   params: Joi.object().keys({
-    authorId: Joi.string().custom(objectId).required(),
+    categoryId: Joi.string().custom(objectId).required(),
   }),
 };
 
 module.exports = {
-  createAuthor,
-  getAuthors,
-  getAuthor,
-  updateAuthor,
-  deleteAuthor,
+  createCategory,
+  getCategories,
+  getCategory,
+  updateCategory,
+  deleteCategory,
 };

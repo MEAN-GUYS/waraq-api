@@ -23,6 +23,11 @@ const bookSchema = mongoose.Schema(
         message: 'Invalid URL for cover image',
       },
     },
+    coverId: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     price: {
       type: Number,
       required: true,
@@ -37,6 +42,16 @@ const bookSchema = mongoose.Schema(
         message: 'Stock must be an integer',
       },
     },
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Author',
+      required: true,
+    },
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Category',
+      required: true,
+    },
   },
   {
     timestamps: true,
@@ -47,7 +62,9 @@ const bookSchema = mongoose.Schema(
 bookSchema.plugin(toJSON);
 bookSchema.plugin(paginate);
 
-bookSchema.index({ name: 1 });
+bookSchema.index({ name: 1 }, { unique: true });
+bookSchema.index({ author: 1 });
+bookSchema.index({ category: 1 });
 bookSchema.index({ price: 1 });
 
 const Book = mongoose.model('Book', bookSchema);

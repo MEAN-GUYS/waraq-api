@@ -1,18 +1,32 @@
 const { status: httpStatus } = require('http-status');
-const { Author } = require('../models');
+const { Author, Book } = require('../models');
 const ApiError = require('../utils/ApiError');
+const escapeRegex = require('../utils/escapeRegex');
 
-const createAuthor = async (AuthorBody) => Author.create(AuthorBody);
+const createAuthor = async (authorBody) => Author.create(authorBody);
 
-const getAllAuthors = async () => Author.find();
+const queryAuthors = async (filter, options) => {
+  const mongooseFilter = {};
 
-const getAuthorById = async (id) => Author.findById(id);
+  if (filter.name) {
+    mongooseFilter.name = { $regex: escapeRegex(filter.name), $options: 'i' };
+  }
+
+  return Author.paginate(mongooseFilter, options);
+};
+
+const getAuthorById = async (id) => {
+  const author = await Author.findById(id);
+
+  if (!author) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Author not found');
+  }
+
+  return author;
+};
 
 const updateAuthorById = async (id, body) => {
   const author = await getAuthorById(id);
-  if (!author) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'author not found');
-  }
   Object.assign(author, body);
   await author.save();
   return author;
@@ -20,16 +34,19 @@ const updateAuthorById = async (id, body) => {
 
 const deleteAuthorById = async (id) => {
   const author = await getAuthorById(id);
-  if (!author) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'author not found');
+
+  const associatedBooks = await Book.exists({ author: id });
+  if (associatedBooks) {
+    throw new ApiError(httpStatus.CONFLICT, 'Cannot delete author with associated books');
   }
+
   await author.deleteOne();
   return author;
 };
 
 module.exports = {
   createAuthor,
-  getAllAuthors,
+  queryAuthors,
   getAuthorById,
   updateAuthorById,
   deleteAuthorById,

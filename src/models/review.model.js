@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { toJSON, paginate } = require('./plugins');
 
 const reviewSchema = new mongoose.Schema(
   {
@@ -27,6 +28,12 @@ const reviewSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+reviewSchema.plugin(toJSON);
+reviewSchema.plugin(paginate);
+
+reviewSchema.index({ user: 1, book: 1 }, { unique: true });
+reviewSchema.index({ book: 1 });
 
 const Review = mongoose.model('Review', reviewSchema);
 module.exports = Review;
