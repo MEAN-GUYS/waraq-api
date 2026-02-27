@@ -26,6 +26,8 @@ const defaultRoutes = [
   {
     path: '/cart',
     route: cartRoute,
+  },
+  {
     path: '/authors',
     route: authorRoute,
   },

@@ -1,96 +1,51 @@
-const mongoose = require('mongoose');
 const { status: httpStatus } = require('http-status');
 const ApiError = require('../utils/ApiError');
-const { Order, Book } = require('../models');
-const { VALID_SHIPPING_TRANSITIONS } = require('../models/order.model');
+const { Order } = require('../models');
 
-const createOrder = async (userId, cartItems, address) => {
-  return mongoose.connection.transaction(async () => {
-    const requestedBookIds = cartItems.map((item) => item.book);
-    const books = await Book.find({ _id: { $in: requestedBookIds } });
+const createOrder = async (userId, orderBody) => {
+  const trackingNumber = 'TRK-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+  const estimatedDelivery = new Date();
+  estimatedDelivery.setDate(estimatedDelivery.getDate() + 5);
 
-    const fetchedBooksMap = new Map(books.map((book) => [book.id, book]));
-
-    const stockUpdates = [];
-    const orderItems = [];
-    let totalPrice = 0;
-
-    for (const cartItem of cartItems) {
-      const { book: requestedBookId, quantity: requestedQuantity } = cartItem;
-
-      const book = fetchedBooksMap.get(requestedBookId);
-
-      if (!book) {
-        throw new ApiError(httpStatus.NOT_FOUND, `Book with id ${requestedBookId} not found`);
-      }
-
-      if (book.stock < requestedQuantity) {
-        throw new ApiError(httpStatus.BAD_REQUEST, `Insufficient stock for "${book.name}".`);
-      }
-
-      stockUpdates.push({
-        updateOne: {
-          filter: { _id: requestedBookId },
-          update: { $inc: { stock: -requestedQuantity } },
-        },
-      });
-      orderItems.push({
-        book: book.id,
-        name: book.name,
-        cover: book.cover,
-        price: book.price,
-        quantity: requestedQuantity,
-      });
-
-      totalPrice += book.price * requestedQuantity;
-    }
-
-    await Book.bulkWrite(stockUpdates);
-
-    return Order.create({ user: userId, items: orderItems, address, totalPrice });
+  const order = await Order.create({
+    user: userId,
+    items: orderBody.items,
+    total: orderBody.total,
+    trackingNumber,
+    estimatedDelivery,
   });
-};
-
-const queryOrders = async (filter, options) => {
-  return Order.paginate(filter, options);
-};
-
-const updateOrderStatus = async (orderId, newStatus) => {
-  const order = await Order.findById(orderId);
-  if (!order) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Order not found');
-  }
-
-  const { shippingStatus, paymentStatus } = newStatus;
-
-  if (shippingStatus) {
-    const allowed = VALID_SHIPPING_TRANSITIONS[order.shippingStatus];
-
-    if (!allowed.includes(shippingStatus)) {
-      throw new ApiError(
-        httpStatus.BAD_REQUEST,
-        `Cannot transition from "${order.shippingStatus}" to "${shippingStatus}"`
-      );
-    }
-
-    order.shippingStatus = shippingStatus;
-  }
-
-  if (paymentStatus) {
-    if (order.paymentStatus === 'success') {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Payment status cannot be changed after success');
-    }
-
-    order.paymentStatus = paymentStatus;
-  }
-
-  await order.save();
 
   return order;
 };
 
-module.exports = {
-  createOrder,
-  queryOrders,
-  updateOrderStatus,
+const getOrdersByUser = async (userId, filter, options) => {
+  const mongooseFilter = { user: userId, ...filter };
+  return Order.paginate(mongooseFilter, { ...options, populate: 'items.book' });
 };
+
+const getOrderById = async (orderId) => {
+  return Order.findById(orderId).populate('items.book');
+};
+
+const updateOrderStatus = async (orderId, status) => {
+  const order = await getOrderById(orderId);
+  if (!order) throw new ApiError(httpStatus.NOT_FOUND, 'Order not found');
+  order.status = status;
+  await order.save();
+  return order;
+};
+
+const reviewItem = async (orderId, itemId, reviewBody) => {
+  const order = await getOrderById(orderId);
+  if (!order) throw new ApiError(httpStatus.NOT_FOUND, 'Order not found');
+  if (order.status !== 'Delivered') throw new ApiError(httpStatus.BAD_REQUEST, 'Can only review delivered orders');
+
+  const item = order.items.id(itemId);
+  if (!item) throw new ApiError(httpStatus.NOT_FOUND, 'Item not found in order');
+
+  Object.assign(item, reviewBody);
+  await order.save();
+  return order;
+};
+
+module.exports = { createOrder, getOrdersByUser, getOrderById, updateOrderStatus, reviewItem };

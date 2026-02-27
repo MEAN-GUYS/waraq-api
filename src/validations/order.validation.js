@@ -1,31 +1,34 @@
 const Joi = require('joi');
 const { objectId } = require('./custom.validation');
-const { SHIPPING_STATUSES, PAYMENT_STATUSES } = require('../models/order.model');
-
-const cartItem = Joi.object().keys({
-  book: Joi.string().custom(objectId).required(),
-  quantity: Joi.number().integer().min(1).required(),
-});
-
-const addressSchema = Joi.object().keys({
-  street: Joi.string().required().min(3).max(200),
-  city: Joi.string().required().min(2).max(100),
-  country: Joi.string().required().min(2).max(100),
-});
 
 const createOrder = {
   body: Joi.object().keys({
-    address: addressSchema.required(),
-    items: Joi.array().items(cartItem).min(1).required(),
+    items: Joi.array()
+      .items(
+        Joi.object().keys({
+          book: Joi.string().custom(objectId).required(),
+          quantity: Joi.number().integer().min(1).required(),
+          price: Joi.number().min(0).required(),
+        })
+      )
+      .min(1)
+      .required(),
+    total: Joi.number().min(0).required(),
   }),
 };
 
 const getOrders = {
   query: Joi.object().keys({
-    shippingStatus: Joi.string().valid(...SHIPPING_STATUSES),
+    status: Joi.string().valid('Processing', 'Shipped', 'Out for Delivery', 'Delivered'),
     sortBy: Joi.string(),
     limit: Joi.number().integer().min(1),
     page: Joi.number().integer().min(1),
+  }),
+};
+
+const getOrder = {
+  params: Joi.object().keys({
+    orderId: Joi.string().custom(objectId),
   }),
 };
 
@@ -33,16 +36,23 @@ const updateOrderStatus = {
   params: Joi.object().keys({
     orderId: Joi.string().custom(objectId),
   }),
+  body: Joi.object().keys({
+    status: Joi.string().valid('Processing', 'Shipped', 'Out for Delivery', 'Delivered').required(),
+  }),
+};
+
+const reviewItem = {
+  params: Joi.object().keys({
+    orderId: Joi.string().custom(objectId),
+    itemId: Joi.string().custom(objectId),
+  }),
   body: Joi.object()
     .keys({
-      shippingStatus: Joi.string().valid(...SHIPPING_STATUSES),
-      paymentStatus: Joi.string().valid(...PAYMENT_STATUSES),
+      rating: Joi.number().integer().min(1).max(5),
+      review: Joi.string().trim(),
+      liked: Joi.boolean().allow(null),
     })
     .min(1),
 };
 
-module.exports = {
-  createOrder,
-  getOrders,
-  updateOrderStatus,
-};
+module.exports = { createOrder, getOrders, getOrder, updateOrderStatus, reviewItem };
