@@ -1,6 +1,11 @@
 const Joi = require('joi');
 const { objectId } = require('./custom.validation');
 
+const objectIdOrArray = Joi.alternatives().try(
+  Joi.string().custom(objectId),
+  Joi.array().items(Joi.string().custom(objectId))
+);
+
 const createBook = {
   body: Joi.object().keys({
     name: Joi.string().required(),
@@ -21,8 +26,8 @@ const getBooks = {
       then: Joi.number().min(Joi.ref('minPrice')),
       otherwise: Joi.number().min(0),
     }),
-    author: Joi.string().custom(objectId),
-    category: Joi.string().custom(objectId),
+    author: objectIdOrArray,
+    category: objectIdOrArray,
     sortBy: Joi.string(),
     limit: Joi.number().integer().min(1),
     page: Joi.number().integer().min(1),

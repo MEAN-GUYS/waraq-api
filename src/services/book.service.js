@@ -49,11 +49,11 @@ const queryBooks = async (filter, options) => {
   }
 
   if (filter.author) {
-    mongooseFilter.author = filter.author;
+    mongooseFilter.author = Array.isArray(filter.author) ? { $in: filter.author } : filter.author;
   }
 
   if (filter.category) {
-    mongooseFilter.category = filter.category;
+    mongooseFilter.category = Array.isArray(filter.category) ? { $in: filter.category } : filter.category;
   }
 
   return Book.paginate(mongooseFilter, mongooseOptions);
