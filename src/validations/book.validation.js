@@ -7,6 +7,8 @@ const createBook = {
     description: Joi.string().required(),
     price: Joi.number().required().min(0),
     stock: Joi.number().required().integer().min(0),
+    author: Joi.string().custom(objectId).required(),
+    category: Joi.string().custom(objectId).required(),
   }),
 };
 
@@ -19,6 +21,8 @@ const getBooks = {
       then: Joi.number().min(Joi.ref('minPrice')),
       otherwise: Joi.number().min(0),
     }),
+    author: Joi.string().custom(objectId),
+    category: Joi.string().custom(objectId),
     sortBy: Joi.string(),
     limit: Joi.number().integer().min(1),
     page: Joi.number().integer().min(1),
@@ -42,6 +46,8 @@ const updateBook = {
       cover: Joi.string().uri(),
       price: Joi.number().min(0),
       stock: Joi.number().integer().min(0),
+      author: Joi.string().custom(objectId),
+      category: Joi.string().custom(objectId),
     })
     .min(1),
 };
