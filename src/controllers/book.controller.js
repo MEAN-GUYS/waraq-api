@@ -34,10 +34,24 @@ const deleteBook = async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 };
 
+const getTopBoughtBooks = async (req, res) => {
+  const limit = parseInt(req.query.limit, 10) || 10;
+  const books = await bookService.getTopBoughtBooks(limit);
+  res.send(books);
+};
+
+const getTopAuthors = async (req, res) => {
+  const limit = parseInt(req.query.limit, 10) || 10;
+  const authors = await bookService.getTopAuthors(limit);
+  res.send(authors);
+};
+
 module.exports = {
   createBook,
   getBooks,
   getBook,
   updateBook,
   deleteBook,
+  getTopBoughtBooks,
+  getTopAuthors,
 };

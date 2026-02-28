@@ -4,7 +4,6 @@ const escapeRegex = require('../utils/escapeRegex');
 const { Book, Author, Category, Review, Cart } = require('../models');
 const uploadToCloudinary = require('../utils/uploadToCloudinary');
 const cloudinary = require('../config/cloudinary');
-const mongoose = require('mongoose');
 
 const validateBookReferences = async (bookBody) => {
   const { author: authorId, category: categoryId } = bookBody;
@@ -83,24 +82,63 @@ const updateBookById = async (bookId, updateBody, coverBuffer) => {
 };
 
 const deleteBookById = async (bookId) => {
-  const book = await mongoose.connection.transaction(async () => {
-    const book = await getBookById(bookId);
-    if (!book) {
-      throw new ApiError(httpStatus.NOT_FOUND, 'Book not found');
-    }
+  const book = await getBookById(bookId);
+  if (!book) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Book not found');
+  }
 
-    await Review.deleteMany({ book: book._id });
-
-    await Cart.updateMany({ 'items.book': bookId }, { $pull: { items: { book: bookId } } });
-
-    await book.deleteOne();
-
-    return book;
-  });
-
+  await Review.deleteMany({ book: book._id });
+  await Cart.updateMany({ 'items.book': bookId }, { $pull: { items: { book: bookId } } });
+  await book.deleteOne();
   await cloudinary.uploader.destroy(book.coverId);
 
   return book;
+};
+
+const getTopBoughtBooks = async (limit = 10) => {
+  const { Order } = require('../models');
+  return Order.aggregate([
+    { $unwind: '$items' },
+    { $group: { _id: '$items.book', totalSold: { $sum: '$items.quantity' } } },
+    { $sort: { totalSold: -1 } },
+    { $limit: limit },
+    { $lookup: { from: 'books', localField: '_id', foreignField: '_id', as: 'book' } },
+    { $unwind: '$book' },
+    { $lookup: { from: 'authors', localField: 'book.author', foreignField: '_id', as: 'book.author' } },
+    { $unwind: { path: '$book.author', preserveNullAndEmptyArrays: true } },
+    { $lookup: { from: 'categories', localField: 'book.category', foreignField: '_id', as: 'book.category' } },
+    { $unwind: { path: '$book.category', preserveNullAndEmptyArrays: true } },
+    {
+      $replaceRoot: {
+        newRoot: { $mergeObjects: ['$book', { totalSold: '$totalSold' }] },
+      },
+    },
+    {
+      $addFields: {
+        id: { $toString: '$_id' },
+        'author.id': { $toString: '$author._id' },
+        'category.id': { $toString: '$category._id' },
+      },
+    },
+    { $project: { _id: 0, __v: 0, createdAt: 0, updatedAt: 0, 'author._id': 0, 'category._id': 0 } },
+  ]);
+};
+
+const getTopAuthors = async (limit = 10) => {
+  const { Order } = require('../models');
+  return Order.aggregate([
+    { $unwind: '$items' },
+    { $lookup: { from: 'books', localField: 'items.book', foreignField: '_id', as: 'bookData' } },
+    { $unwind: '$bookData' },
+    { $group: { _id: '$bookData.author', totalSold: { $sum: '$items.quantity' } } },
+    { $sort: { totalSold: -1 } },
+    { $limit: limit },
+    { $lookup: { from: 'authors', localField: '_id', foreignField: '_id', as: 'author' } },
+    { $unwind: '$author' },
+    { $replaceRoot: { newRoot: { $mergeObjects: ['$author', { totalSold: '$totalSold' }] } } },
+    { $addFields: { id: { $toString: '$_id' } } },
+    { $project: { _id: 0, __v: 0, createdAt: 0, updatedAt: 0 } },
+  ]);
 };
 
 module.exports = {
@@ -109,4 +147,6 @@ module.exports = {
   getBookById,
   updateBookById,
   deleteBookById,
+  getTopBoughtBooks,
+  getTopAuthors,
 };

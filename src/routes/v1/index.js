@@ -8,6 +8,7 @@ const authorRoute = require('./author.route');
 const config = require('../../config/config');
 const cartRoute = require('./cart.route');
 const categoryRoute = require('./category.route');
+const reviewRoute = require('./review.route');
 
 const router = express.Router();
 
@@ -39,6 +40,10 @@ const defaultRoutes = [
   {
     path: '/categories',
     route: categoryRoute,
+  },
+  {
+    path: '/reviews',
+    route: reviewRoute,
   },
 ];
 
