@@ -1,38 +1,55 @@
-const router = require('express').Router();
+const express = require('express');
 const roles = require('../../config/roles');
 const validate = require('../../middlewares/validate');
 const auth = require('../../middlewares/auth');
 const authorizeRoles = require('../../middlewares/authorizeRoles');
-const authorValidation = require('../../validations/author.validation');
-const { authorController } = require('../../controllers');
+const categoryValidation = require('../../validations/category.validation');
+const { categoryController } = require('../../controllers');
+
+const router = express.Router();
 
 router
   .route('/')
-  .post(auth, authorizeRoles([roles.admin]), validate(authorValidation.createAuthor), authorController.createAuthor)
-  .get(validate(authorValidation.getAuthors), authorController.getAllAuthors);
+  .post(
+    auth,
+    authorizeRoles([roles.admin]),
+    validate(categoryValidation.createCategory),
+    categoryController.createCategory
+  )
+  .get(validate(categoryValidation.getCategories), categoryController.getCategories);
 
 router
-  .route('/:authorId')
-  .get(validate(authorValidation.getAuthor), authorController.getAuthor)
-  .patch(auth, authorizeRoles([roles.admin]), validate(authorValidation.updateAuthor), authorController.updateAuthor)
-  .delete(auth, authorizeRoles([roles.admin]), validate(authorValidation.deleteAuthor), authorController.deleteAuthor);
+  .route('/:categoryId')
+  .get(validate(categoryValidation.getCategory), categoryController.getCategory)
+  .patch(
+    auth,
+    authorizeRoles([roles.admin]),
+    validate(categoryValidation.updateCategory),
+    categoryController.updateCategory
+  )
+  .delete(
+    auth,
+    authorizeRoles([roles.admin]),
+    validate(categoryValidation.deleteCategory),
+    categoryController.deleteCategory
+  );
 
 module.exports = router;
 
 /**
  * @swagger
  * tags:
- *   name: Authors
- *   description: Author management and retrieval
+ *   name: Categories
+ *   description: Category management and retrieval
  */
 
 /**
  * @swagger
- * /authors:
+ * /categories:
  *   post:
- *     summary: Create an author
- *     description: Only admins can create authors.
- *     tags: [Authors]
+ *     summary: Create a category
+ *     description: Only admins can create categories.
+ *     tags: [Categories]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -46,42 +63,44 @@ module.exports = router;
  *             properties:
  *               name:
  *                 type: string
- *               bio:
- *                 type: string
  *             example:
- *               name: George Orwell
- *               bio: An English novelist, essayist, journalist and critic.
+ *               name: Fiction
  *     responses:
  *       "201":
  *         description: Created
  *         content:
  *           application/json:
  *             schema:
- *                $ref: '#/components/schemas/Author'
- *       "400":
- *         $ref: '#/components/responses/DuplicateEmail'
+ *                $ref: '#/components/schemas/Category'
  *       "401":
  *         $ref: '#/components/responses/Unauthorized'
  *       "403":
  *         $ref: '#/components/responses/Forbidden'
+ *       "409":
+ *         $ref: '#/components/responses/Conflict'
  *
  *   get:
- *     summary: Get all authors
- *     description: Retrieve all authors.
- *     tags: [Authors]
+ *     summary: Get all categories
+ *     description: Retrieve all categories with optional pagination.
+ *     tags: [Categories]
  *     parameters:
  *       - in: query
  *         name: name
  *         schema:
  *           type: string
- *         description: Author name
+ *         description: Category name
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *         description: sort by query in the form of field:desc/asc (ex. name:asc)
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
  *           minimum: 1
  *         default: 10
- *         description: Maximum number of authors
+ *         description: Maximum number of categories
  *       - in: query
  *         name: page
  *         schema:
@@ -100,7 +119,7 @@ module.exports = router;
  *                 results:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/Author'
+ *                     $ref: '#/components/schemas/Category'
  *                 page:
  *                   type: integer
  *                   example: 1
@@ -117,41 +136,41 @@ module.exports = router;
 
 /**
  * @swagger
- * /authors/{id}:
+ * /categories/{categoryId}:
  *   get:
- *     summary: Get an author
- *     description: Fetch author details by ID.
- *     tags: [Authors]
+ *     summary: Get a category
+ *     description: Fetch a category by ID.
+ *     tags: [Categories]
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: categoryId
  *         required: true
  *         schema:
  *           type: string
- *         description: Author id
+ *         description: Category ID
  *     responses:
  *       "200":
  *         description: OK
  *         content:
  *           application/json:
  *             schema:
- *                $ref: '#/components/schemas/Author'
+ *                $ref: '#/components/schemas/Category'
  *       "404":
  *         $ref: '#/components/responses/NotFound'
  *
  *   patch:
- *     summary: Update an author
- *     description: Only admins can update authors.
- *     tags: [Authors]
+ *     summary: Update a category
+ *     description: Only admins can update categories.
+ *     tags: [Categories]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: categoryId
  *         required: true
  *         schema:
  *           type: string
- *         description: Author id
+ *         description: Category ID
  *     requestBody:
  *       required: true
  *       content:
@@ -161,38 +180,39 @@ module.exports = router;
  *             properties:
  *               name:
  *                 type: string
- *               bio:
- *                 type: string
  *             example:
- *               name: George Orwell updated
+ *               name: Non-Fiction
  *     responses:
  *       "200":
  *         description: OK
  *         content:
  *           application/json:
  *             schema:
- *                $ref: '#/components/schemas/Author'
+ *                $ref: '#/components/schemas/Category'
  *       "401":
  *         $ref: '#/components/responses/Unauthorized'
  *       "403":
  *         $ref: '#/components/responses/Forbidden'
  *       "404":
  *         $ref: '#/components/responses/NotFound'
+ *       "409":
+ *         $ref: '#/components/responses/Conflict'
  *
  *   delete:
- *     summary: Delete an author
- *     description: Only admins can delete authors.
- *     tags: [Authors]
+ *     summary: Delete a category
+ *     description: Only admins can delete categories. Cannot delete if books are linked.
+ *     tags: [Categories]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
  *       - in: path
- *         name: id
+ *         name: categoryId
  *         required: true
  *         schema:
  *           type: string
- *         description: Author id
+ *         description: Category ID
  *     responses:
- *       "200":
+ *       "204":
  *         description: No content
  *       "401":
  *         $ref: '#/components/responses/Unauthorized'
@@ -200,4 +220,6 @@ module.exports = router;
  *         $ref: '#/components/responses/Forbidden'
  *       "404":
  *         $ref: '#/components/responses/NotFound'
+ *       "409":
+ *         $ref: '#/components/responses/Conflict'
  */

@@ -7,7 +7,7 @@ const cors = require('cors');
 const { status: httpStatus } = require('http-status');
 const config = require('./config/config');
 const morgan = require('./config/morgan');
-const { authLimiter } = require('./middlewares/rateLimiter');
+const { authLimiter, apiLimiter } = require('./middlewares/rateLimiter');
 const routes = require('./routes/v1');
 const { errorConverter, errorHandler } = require('./middlewares/error');
 const ApiError = require('./utils/ApiError');
@@ -43,6 +43,8 @@ app.use(cors());
 
 // limit repeated failed requests to auth endpoints
 if (config.env === 'production') {
+  app.use('/v1', apiLimiter);
+
   app.use('/v1/auth', authLimiter);
 }
 // v1 api routes

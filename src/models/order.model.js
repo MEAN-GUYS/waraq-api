@@ -1,72 +1,131 @@
 const mongoose = require('mongoose');
 const { toJSON, paginate } = require('./plugins');
 
-const orderItemSchema = mongoose.Schema({
-  book: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Book',
-    required: true,
-  },
-  quantity: {
-    type: Number,
-    required: true,
-    min: 1,
-    validate: {
-      validator: Number.isInteger,
-      message: 'Quantity must be an integer',
+const SHIPPING_STATUSES = ['processing', 'out for delivery', 'delivered'];
+const PAYMENT_STATUSES = ['pending', 'success'];
+const VALID_SHIPPING_TRANSITIONS = {
+  processing: ['out for delivery'],
+  'out for delivery': ['delivered'],
+  delivered: [],
+};
+
+const orderItemSchema = new mongoose.Schema(
+  {
+    book: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Book',
+      required: true,
+    },
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    cover: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    price: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    quantity: {
+      type: Number,
+      required: true,
+      min: 1,
+      validate: {
+        validator: Number.isInteger,
+        message: 'Quantity must be an integer',
+      },
     },
   },
-  price: {
-    type: Number,
-    required: true,
-    min: 0,
-  },
-  rating: {
-    type: Number,
-    min: 1,
-    max: 5,
-  },
-  review: {
-    type: String,
-    trim: true,
-  },
-  liked: {
-    type: Boolean,
-    default: null,
-  },
-});
+  { _id: false }
+);
 
-const orderSchema = mongoose.Schema(
+const orderAddressSchema = new mongoose.Schema(
+  {
+    street: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    city: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    country: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+  },
+  { _id: false }
+);
+
+const orderSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
-    items: [orderItemSchema],
-    total: {
+    items: {
+      type: [orderItemSchema],
+      required: true,
+      validate: {
+        validator: (items) => Array.isArray(items) && items.length > 0,
+        message: 'Order must contain at least one item',
+      },
+    },
+    address: {
+      type: orderAddressSchema,
+      required: true,
+    },
+    shippingStatus: {
+      type: String,
+      enum: SHIPPING_STATUSES,
+      default: 'processing',
+    },
+    paymentMethod: {
+      type: String,
+      enum: ['COD'],
+      default: 'COD',
+    },
+    paymentStatus: {
+      type: String,
+      enum: PAYMENT_STATUSES,
+      default: 'pending',
+    },
+    totalPrice: {
       type: Number,
       required: true,
       min: 0,
     },
-    status: {
-      type: String,
-      enum: ['Processing', 'Shipped', 'Out for Delivery', 'Delivered'],
-      default: 'Processing',
-    },
-    trackingNumber: {
-      type: String,
-      trim: true,
-    },
-    estimatedDelivery: {
-      type: Date,
-    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
 orderSchema.plugin(toJSON);
 orderSchema.plugin(paginate);
 
+orderSchema.index({ user: 1 });
+
+orderSchema.statics.hasPurchased = function (userId, bookId) {
+  return this.exists({
+    user: userId,
+    'items.book': bookId,
+    shippingStatus: 'delivered',
+  });
+};
+
 const Order = mongoose.model('Order', orderSchema);
+
 module.exports = Order;
+module.exports.SHIPPING_STATUSES = SHIPPING_STATUSES;
+module.exports.PAYMENT_STATUSES = PAYMENT_STATUSES;
+module.exports.VALID_SHIPPING_TRANSITIONS = VALID_SHIPPING_TRANSITIONS;

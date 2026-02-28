@@ -9,7 +9,7 @@ router.post('/register', validate(authValidation.register), authController.regis
 router.post('/login', validate(authValidation.login), authController.login);
 router.post('/logout', validate(authValidation.logout), authController.logout);
 router.post('/refresh-tokens', validate(authValidation.refreshTokens), authController.refreshTokens);
-router.post('/forget-password',validate(authValidation.forgetPassword),authController.forgetPassword)
+router.post('/forget-password', validate(authValidation.forgetPassword), authController.forgetPassword);
 module.exports = router;
 
 /**
@@ -35,6 +35,7 @@ module.exports = router;
  *               - name
  *               - email
  *               - password
+ *               - dob
  *             properties:
  *               name:
  *                 type: string
@@ -47,6 +48,10 @@ module.exports = router;
  *                 format: password
  *                 minLength: 8
  *                 description: At least one number and one letter
+ *               dob:
+ *                 type: string
+ *                 format: date
+ *                 description: Date of birth (YYYY-MM-DD)
  *             example:
  *               name: fake name
  *               email: fake@example.com

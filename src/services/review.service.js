@@ -1,28 +1,51 @@
-const { Review } = require('../models');
+const { status: httpStatus } = require('http-status');
+const ApiError = require('../utils/ApiError');
+const { Review, Book, Order } = require('../models');
 
-const createReview = async (userId, body) => {
-  const existing = await Review.findOne({ user: userId, book: body.bookId });
-  if (existing) {
-    Object.assign(existing, {
-      rating: body.rating,
-      review: body.review,
-      liked: body.liked,
-    });
-    await existing.save();
-    return existing;
+const createReview = async (userId, bookId, reviewBody) => {
+  const book = await Book.exists({ _id: bookId });
+  if (!book) throw new ApiError(httpStatus.NOT_FOUND, 'Book not found');
+
+  const purchased = await Order.hasPurchased(userId, bookId);
+  if (!purchased) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'You have to purchase the book before leaving a review');
   }
 
-  return Review.create({
-    user: userId,
-    book: body.bookId,
-    rating: body.rating,
-    review: body.review,
-    liked: body.liked,
-  });
+  try {
+    return await Review.create({ user: userId, book: bookId, ...reviewBody });
+  } catch (error) {
+    if (error.code === 11000) {
+      throw new ApiError(httpStatus.CONFLICT, 'You have already reviewed this book');
+    } else {
+      throw error;
+    }
+  }
 };
 
-const getBookReviews = async (bookId) => {
-  return Review.find({ book: bookId }).populate('user', 'name').sort({ createdAt: -1 });
+const queryReviews = async (filter, options) => {
+  return Review.paginate(filter, { ...options, populate: 'user' });
 };
 
-module.exports = { createReview, getBookReviews };
+const deleteReview = async (reviewId, user) => {
+  const review = await Review.findById(reviewId);
+  if (!review) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Review not found');
+  }
+
+  const isAdmin = user.role === 'admin';
+  const isOwner = review.user.toString() === user.id;
+
+  if (!isAdmin && !isOwner) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'You do not have permission to delete this review');
+  }
+
+  await review.deleteOne();
+
+  return review;
+};
+
+module.exports = {
+  createReview,
+  queryReviews,
+  deleteReview,
+};

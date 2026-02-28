@@ -10,6 +10,9 @@ components:
           format: email
         name:
           type: string
+        dob:
+          type: string
+          format: date-time
         role:
           type: string
           enum: [user, admin]
@@ -17,6 +20,7 @@ components:
         id: 5ebac534954b54139806c112
         email: fake@example.com
         name: fake name
+        dob: 1990-01-01T00:00:00.000Z
         role: user
     Book:
       type: object
@@ -30,17 +34,32 @@ components:
         cover:
           type: string
           format: uri
+        coverId:
+          type: string
         price:
           type: number
         stock:
           type: number
+        author:
+          type: string
+        category:
+          type: string
+        averageRating:
+          type: number
+        reviewCount:
+          type: integer
       example:
         id: 60a5b28a7e4b9c1d8c4e5f6a
         name: The Great Gatsby
         description: A classic novel by F. Scott Fitzgerald.
         cover: https://example.com/gatsby-cover.jpg
+        coverId: cloudinary_id_123
         price: 15.99
         stock: 50
+        author: 60c7b2f9e1d5a83f4c9b1234
+        category: 60c7b2f9e1d5a83f4c9b5678
+        averageRating: 4.5
+        reviewCount: 12
     Order:
       type: object
       properties:
@@ -101,6 +120,78 @@ components:
         paymentMethod: COD
         paymentStatus: pending
         totalPrice: 31.98
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+      example:
+        id: 60c7b2f9e1d5a83f4c9b1234
+        name: Fiction
+    Author:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        bio:
+          type: string
+      example:
+        id: 60c7b2f9e1d5a83f4c9b1234
+        name: George Orwell
+        bio: An English novelist, essayist, journalist and critic.
+    Cart:
+      type: object
+      properties:
+        id:
+          type: string
+        user:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              book:
+                type: string
+              quantity:
+                type: integer
+              price:
+                type: number
+        totalPrice:
+          type: number
+      example:
+        id: 64b8d295f1d2c72d9c8b4567
+        user: 5ebac534954b54139806c112
+        items:
+          - book: 60a5b28a7e4b9c1d8c4e5f6a
+            quantity: 2
+            price: 15.99
+        totalPrice: 31.98
+    Review:
+      type: object
+      properties:
+        id:
+          type: string
+        user:
+          type: string
+        book:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+      example:
+        id: 61c7b2f9e1d5a83f4c9b9999
+        user: 5ebac534954b54139806c112
+        book: 60a5b28a7e4b9c1d8c4e5f6a
+        rating: 5
+        comment: Easily one of my favorite books. Highly recommend!
     Token:
       type: object
       properties:
@@ -163,6 +254,15 @@ components:
           example:
             code: 404
             message: Not found
+    Conflict:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 409
+            message: Resource already exists
   securitySchemes:
     bearerAuth:
       type: http

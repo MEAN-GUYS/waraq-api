@@ -11,6 +11,10 @@ const userSchema = mongoose.Schema(
       required: true,
       trim: true,
     },
+    dob: {
+      type: Date,
+      required: true,
+    },
     email: {
       type: String,
       required: true,

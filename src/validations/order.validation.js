@@ -1,58 +1,42 @@
 const Joi = require('joi');
 const { objectId } = require('./custom.validation');
+const { SHIPPING_STATUSES, PAYMENT_STATUSES } = require('../models/order.model');
+
+const addressSchema = Joi.object().keys({
+  street: Joi.string().required().min(3).max(200),
+  city: Joi.string().required().min(2).max(100),
+  country: Joi.string().required().min(2).max(100),
+});
 
 const createOrder = {
   body: Joi.object().keys({
-    items: Joi.array()
-      .items(
-        Joi.object().keys({
-          book: Joi.string().custom(objectId).required(),
-          quantity: Joi.number().integer().min(1).required(),
-          price: Joi.number().min(0).required(),
-        })
-      )
-      .min(1)
-      .required(),
-    total: Joi.number().min(0).required(),
+    address: addressSchema.required(),
   }),
 };
 
 const getOrders = {
   query: Joi.object().keys({
-    status: Joi.string().valid('Processing', 'Shipped', 'Out for Delivery', 'Delivered'),
+    shippingStatus: Joi.string().valid(...SHIPPING_STATUSES),
     sortBy: Joi.string(),
     limit: Joi.number().integer().min(1),
     page: Joi.number().integer().min(1),
   }),
 };
 
-const getOrder = {
-  params: Joi.object().keys({
-    orderId: Joi.string().custom(objectId),
-  }),
-};
-
 const updateOrderStatus = {
   params: Joi.object().keys({
-    orderId: Joi.string().custom(objectId),
-  }),
-  body: Joi.object().keys({
-    status: Joi.string().valid('Processing', 'Shipped', 'Out for Delivery', 'Delivered').required(),
-  }),
-};
-
-const reviewItem = {
-  params: Joi.object().keys({
-    orderId: Joi.string().custom(objectId),
-    itemId: Joi.string().custom(objectId),
+    orderId: Joi.string().custom(objectId).required(),
   }),
   body: Joi.object()
     .keys({
-      rating: Joi.number().integer().min(1).max(5),
-      review: Joi.string().trim(),
-      liked: Joi.boolean().allow(null),
+      shippingStatus: Joi.string().valid(...SHIPPING_STATUSES),
+      paymentStatus: Joi.string().valid(...PAYMENT_STATUSES),
     })
     .min(1),
 };
 
-module.exports = { createOrder, getOrders, getOrder, updateOrderStatus, reviewItem };
+module.exports = {
+  createOrder,
+  getOrders,
+  updateOrderStatus,
+};
