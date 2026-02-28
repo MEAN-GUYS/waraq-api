@@ -25,7 +25,7 @@ const getOrders = {
 
 const updateOrderStatus = {
   params: Joi.object().keys({
-    orderId: Joi.string().custom(objectId),
+    orderId: Joi.string().custom(objectId).required(),
   }),
   body: Joi.object()
     .keys({
