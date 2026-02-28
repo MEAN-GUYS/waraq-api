@@ -35,6 +35,11 @@ const defaultRoutes = [
     path: '/orders',
     route: orderRoute,
   },
+
+  {
+    path: '/reviews',
+    route: require('./review.route'),
+  },
 ];
 
 const devRoutes = [

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
+const { toJSON, paginate } = require('./plugins');
 
-const reviewSchema = new mongoose.Schema(
+const reviewSchema = mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -18,15 +19,20 @@ const reviewSchema = new mongoose.Schema(
       min: 1,
       max: 5,
     },
-    comment: {
+    review: {
       type: String,
-      maxlength: 500,
+      trim: true,
+    },
+    liked: {
+      type: Boolean,
+      default: null,
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
+
+reviewSchema.plugin(toJSON);
+reviewSchema.plugin(paginate);
 
 const Review = mongoose.model('Review', reviewSchema);
 module.exports = Review;
