@@ -115,6 +115,14 @@ orderSchema.plugin(paginate);
 
 orderSchema.index({ user: 1 });
 
+orderSchema.statics.hasPurchased = function (userId, bookId) {
+  return this.exists({
+    user: userId,
+    'items.book': bookId,
+    shippingStatus: 'delivered',
+  });
+};
+
 const Order = mongoose.model('Order', orderSchema);
 
 module.exports = Order;

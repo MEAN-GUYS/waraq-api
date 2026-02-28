@@ -35,5 +35,32 @@ reviewSchema.plugin(paginate);
 reviewSchema.index({ user: 1, book: 1 }, { unique: true });
 reviewSchema.index({ book: 1 });
 
+reviewSchema.statics.updateRatingStats = async function (bookId) {
+  const Book = require('./book.model');
+  const [stats] = await this.aggregate([
+    { $match: { book: bookId } },
+    {
+      $group: {
+        _id: null,
+        averageRating: { $avg: '$rating' },
+        reviewCount: { $sum: 1 },
+      },
+    },
+  ]);
+
+  const averageRating = stats ? parseFloat(stats.averageRating.toFixed(1)) : 0;
+  const reviewCount = stats ? stats.reviewCount : 0;
+
+  await Book.findByIdAndUpdate(bookId, { averageRating, reviewCount });
+};
+
+reviewSchema.post('save', async function () {
+  await this.constructor.updateRatingStats(this.book);
+});
+
+reviewSchema.post('deleteOne', { document: true, query: false }, async function () {
+  await this.constructor.updateRatingStats(this.book);
+});
+
 const Review = mongoose.model('Review', reviewSchema);
 module.exports = Review;
