@@ -14,6 +14,9 @@ const upload = uploadMiddleware({ extensions: allowedExtensions.image });
 
 router.use('/:bookId/reviews', reviewRoute);
 
+router.route('/top-bought').get(bookController.getTopBoughtBooks);
+router.route('/top-authors').get(bookController.getTopAuthors);
+
 router
   .route('/')
   .post(

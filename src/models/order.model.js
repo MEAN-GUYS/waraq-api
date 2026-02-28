@@ -46,6 +46,11 @@ const orderItemSchema = new mongoose.Schema(
 
 const orderAddressSchema = new mongoose.Schema(
   {
+    fullName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     street: {
       type: String,
       required: true,
@@ -57,6 +62,11 @@ const orderAddressSchema = new mongoose.Schema(
       trim: true,
     },
     country: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    phone: {
       type: String,
       required: true,
       trim: true,
@@ -91,7 +101,7 @@ const orderSchema = new mongoose.Schema(
     },
     paymentMethod: {
       type: String,
-      enum: ['COD'],
+      enum: ['COD', 'card'],
       default: 'COD',
     },
     paymentStatus: {

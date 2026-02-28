@@ -5,7 +5,7 @@ const { Order, Book } = require('../models');
 const cartService = require('./cart.service');
 const { VALID_SHIPPING_TRANSITIONS } = require('../models/order.model');
 
-const createOrder = async (userId, address) => {
+const createOrder = async (userId, address, paymentMethod) => {
   return mongoose.connection.transaction(async () => {
     const cart = await cartService.getCartByUser(userId);
     if (cart.items.length === 0) {
@@ -47,7 +47,7 @@ const createOrder = async (userId, address) => {
 
     await Book.bulkWrite(stockUpdates);
 
-    const order = await Order.create({ user: userId, items: orderItems, address, totalPrice });
+    const order = await Order.create({ user: userId, items: orderItems, address, totalPrice, paymentMethod });
 
     cart.items = [];
     await cart.save();
@@ -68,7 +68,7 @@ const updateOrderStatus = async (orderId, newStatus) => {
 
   const { shippingStatus, paymentStatus } = newStatus;
 
-  if (shippingStatus) {
+  if (shippingStatus && shippingStatus !== order.shippingStatus) {
     const allowed = VALID_SHIPPING_TRANSITIONS[order.shippingStatus];
 
     if (!allowed.includes(shippingStatus)) {
@@ -81,7 +81,7 @@ const updateOrderStatus = async (orderId, newStatus) => {
     order.shippingStatus = shippingStatus;
   }
 
-  if (paymentStatus) {
+  if (paymentStatus && paymentStatus !== order.paymentStatus) {
     if (order.paymentStatus === 'success') {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Payment status cannot be changed after success');
     }

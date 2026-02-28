@@ -2,20 +2,17 @@ const Joi = require('joi');
 const { objectId } = require('./custom.validation');
 
 const createReview = {
-  params: Joi.object().keys({
-    bookId: Joi.string().custom(objectId).required(),
-  }),
   body: Joi.object().keys({
+    bookId: Joi.string().custom(objectId).required(),
     rating: Joi.number().integer().min(1).max(5).required(),
-    comment: Joi.string().max(500),
+    review: Joi.string().allow('').max(500),
+    liked: Joi.boolean().allow(null),
   }),
 };
 
 const getReviews = {
-  params: Joi.object().keys({
-    bookId: Joi.string().custom(objectId).required(),
-  }),
   query: Joi.object().keys({
+    book: Joi.string().custom(objectId),
     sortBy: Joi.string(),
     limit: Joi.number().integer().min(1),
     page: Joi.number().integer().min(1),
@@ -24,7 +21,6 @@ const getReviews = {
 
 const deleteReview = {
   params: Joi.object().keys({
-    bookId: Joi.string().custom(objectId).required(),
     reviewId: Joi.string().custom(objectId).required(),
   }),
 };

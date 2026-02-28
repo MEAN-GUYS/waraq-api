@@ -3,13 +3,14 @@ const pick = require('../utils/pick');
 const { reviewService } = require('../services');
 
 const createReview = async (req, res) => {
-  const review = await reviewService.createReview(req.user.id, req.params.bookId, req.body);
+  const { bookId, ...reviewBody } = req.body;
+  const review = await reviewService.createReview(req.user.id, bookId, reviewBody);
   res.status(httpStatus.CREATED).send(review);
 };
 
 const getReviews = async (req, res) => {
   const options = pick(req.query, ['sortBy', 'limit', 'page']);
-  const filter = { book: req.params.bookId };
+  const filter = pick(req.query, ['book']);
   const result = await reviewService.queryReviews(filter, options);
   res.status(httpStatus.OK).send(result);
 };
