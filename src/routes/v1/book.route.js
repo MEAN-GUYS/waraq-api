@@ -67,11 +67,19 @@ module.exports = router;
  *               - cover
  *               - price
  *               - stock
+ *               - author
+ *               - category
  *             properties:
  *               name:
  *                 type: string
  *               description:
  *                 type: string
+ *               author:
+ *                 type: string
+ *                 description: ObjectId of the author
+ *               category:
+ *                 type: string
+ *                 description: ObjectId of the category
  *               cover:
  *                 type: string
  *                 format: uri
@@ -111,6 +119,16 @@ module.exports = router;
  *         schema:
  *           type: string
  *         description: Book name
+ *       - in: query
+ *         name: author
+ *         schema:
+ *           type: string
+ *         description: Author ID
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *         description: Category ID
  *       - in: query
  *         name: minPrice
  *         schema:
@@ -213,6 +231,10 @@ module.exports = router;
  *               name:
  *                 type: string
  *               description:
+ *                 type: string
+ *               author:
+ *                 type: string
+ *               category:
  *                 type: string
  *               cover:
  *                 type: string

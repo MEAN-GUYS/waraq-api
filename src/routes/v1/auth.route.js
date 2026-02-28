@@ -35,6 +35,7 @@ module.exports = router;
  *               - name
  *               - email
  *               - password
+ *               - dob
  *             properties:
  *               name:
  *                 type: string
@@ -47,6 +48,10 @@ module.exports = router;
  *                 format: password
  *                 minLength: 8
  *                 description: At least one number and one letter
+ *               dob:
+ *                 type: string
+ *                 format: date
+ *                 description: Date of birth (YYYY-MM-DD)
  *             example:
  *               name: fake name
  *               email: fake@example.com

@@ -63,6 +63,7 @@ module.exports = router;
  *               - email
  *               - password
  *               - role
+ *               - dob
  *             properties:
  *               name:
  *                 type: string
@@ -70,6 +71,10 @@ module.exports = router;
  *                 type: string
  *                 format: email
  *                 description: must be unique
+ *               dob:
+ *                 type: string
+ *                 format: date
+ *                 description: Date of birth (YYYY-MM-DD)
  *               password:
  *                 type: string
  *                 format: password
@@ -224,10 +229,15 @@ module.exports = router;
  *                 format: password
  *                 minLength: 8
  *                 description: At least one number and one letter
+ *               dob:
+ *                 type: string
+ *                 format: date
+ *                 description: Date of birth (YYYY-MM-DD)
  *             example:
  *               name: fake name
  *               email: fake@example.com
  *               password: password1
+ *               dob: 1990-01-01T00:00:00.000Z
  *     responses:
  *       "200":
  *         description: OK
