@@ -8,8 +8,11 @@ const bookController = require('../../controllers/book.controller');
 const router = express.Router();
 const uploadMiddleware = require('../../middlewares/multer');
 const allowedExtensions = require('../../config/allowedExtensions');
+const reviewRoute = require('./review.route');
 
 const upload = uploadMiddleware({ extensions: allowedExtensions.image });
+
+router.use('/:bookId/reviews', reviewRoute);
 
 router
   .route('/')
