@@ -34,10 +34,18 @@ const forgetPassword = {
   }),
 };
 
+const resetPassword = {
+  body: Joi.object().keys({
+    token: Joi.string().required(),
+    password: Joi.string().required().custom(password),
+  }),
+};
+
 module.exports = {
   register,
   login,
   logout,
   refreshTokens,
   forgetPassword,
+  resetPassword,
 };

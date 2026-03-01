@@ -28,10 +28,16 @@ const forgetPassword = async (req, res) => {
   res.send({ message: 'If this email exists, you will receive a reset link shortly.' });
 };
 
+const resetPassword = async (req, res) => {
+  await authService.resetPassword(req.body.token, req.body.password);
+  res.send({ message: 'Password reset successfully.' });
+};
+
 module.exports = {
   register,
   login,
   logout,
   refreshTokens,
   forgetPassword,
+  resetPassword,
 };

@@ -1,4 +1,5 @@
 const { status: httpStatus } = require('http-status');
+const jwt = require('jsonwebtoken');
 const tokenService = require('./token.service');
 const userService = require('./user.service');
 const Token = require('../models/token.model');
@@ -44,17 +45,24 @@ const forgetPassword = async (email) => {
   const user = await User.findOne({ email });
   if (!user) return;
   const accessTokenExpires = dayjs().add(config.jwt.accessExpirationMinutes, 'minute');
-  const resetToken = await tokenService.generateToken(
-    user,
-    accessTokenExpires,
-    tokenTypes.FORGET_PASSWORD,
-    config.jwt.password
-  );
-  await user.save();
+  const resetToken = tokenService.generateToken(user, accessTokenExpires, tokenTypes.FORGET_PASSWORD);
   const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
   await sendEmail(user.email, 'Reset Your Password', resetPasswordEmail(resetUrl));
 
   return resetUrl;
+};
+
+const resetPassword = async (token, newPassword) => {
+  const payload = jwt.verify(token, config.jwt.secret);
+  if (payload.type !== tokenTypes.FORGET_PASSWORD) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid reset token');
+  }
+  const user = await User.findById(payload.sub.id);
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
+  user.password = newPassword;
+  await user.save({ validateModifiedOnly: true });
 };
 
 module.exports = {
@@ -62,4 +70,5 @@ module.exports = {
   logout,
   refreshAuth,
   forgetPassword,
+  resetPassword,
 };
