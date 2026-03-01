@@ -40,6 +40,7 @@ const updateUser = {
       password: Joi.string().custom(password),
       name: Joi.string(),
       dob: Joi.date().max('now'),
+      role: Joi.string().valid(...Object.values(roles)),
     })
     .min(1),
 };
